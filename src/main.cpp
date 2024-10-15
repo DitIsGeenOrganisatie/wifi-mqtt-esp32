@@ -27,7 +27,8 @@ boolean readerDisabled = false;
 int irqCurr;
 int irqPrev;
 
-String card_ids[7] = {"0x89 0xD1 0x12 0xC3", "0x04 0xB9 0x14 0x02 0xFF 0x2C 0x80", "0x43 0xE0 0x01 0x03", "0x04 0x07 0xCC 0x52 0xA8 0x58 0x81", "0x04 0x84 0x7F 0xA2 0x2D 0x4D 0x80", "0xE9 0x39 0xB4 0xC2"};
+String card_ids[7] = {"0xF9 0x63 0x05 0xC2", "0x04 0xB9 0x14 0x02 0xFF 0x2C 0x80", "0x43 0xE0 0x01 0x03", "0x04 0x07 0xCC 0x52 0xA8 0x58 0x81", "0x04 0x84 0x7F 0xA2 0x2D 0x4D 0x80", "0xE9 0x39 0xB4 0xC2"};
+//"0x89 0xD1 0x12 0xC3"
 
 Adafruit_PN532 nfc(PN532_IRQ, PN532_RESET);
 
@@ -202,6 +203,41 @@ void handleCardDetected() {
 
       //check id of card
 
+      String card_id = "";
+
+      //compare uid with card_ids
+
+      for (int i = 0; i < 7; i++)
+      {
+        for (int j = 0; j < uidLength; j++)
+        {
+          card_id += "0x";
+          if (uid[j] < 0x10) {
+            card_id += "0"; // Add leading zero if necessary
+          }
+          card_id += String(uid[j], HEX);
+          card_id += " ";
+        }
+
+        Serial.println("Card ID: " + card_id);
+        
+        card_ids[i].toLowerCase();
+
+        Serial.println("Card ID: " + card_ids[i]);
+        if (strcmp(card_id.c_str(), card_ids[i].c_str()) == 0)
+        {
+          Serial.println("Card ID MATCHED");
+          digitalWrite(LED_PIN, HIGH);
+          delay(1000);
+          digitalWrite(LED_PIN, LOW);
+          break;
+        }
+        else
+        {
+          Serial.println("Card ID NOT MATCHED");
+        }
+        card_id = "";
+      }
 
 
 
@@ -224,7 +260,7 @@ void handleCardDetected() {
 
       timeLastCardRead = millis();
     }
-
+    
     // The reader will be enabled again after DELAY_BETWEEN_CARDS ms will pass.
     readerDisabled = true;
 }
