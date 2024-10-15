@@ -27,6 +27,8 @@ boolean readerDisabled = false;
 int irqCurr;
 int irqPrev;
 
+String card_ids[7] = {"0x89 0xD1 0x12 0xC3", "0x04 0xB9 0x14 0x02 0xFF 0x2C 0x80", "0x43 0xE0 0x01 0x03", "0x04 0x07 0xCC 0x52 0xA8 0x58 0x81", "0x04 0x84 0x7F 0xA2 0x2D 0x4D 0x80", "0xE9 0x39 0xB4 0xC2"};
+
 Adafruit_PN532 nfc(PN532_IRQ, PN532_RESET);
 
 static void startListeningToNFC();
@@ -124,11 +126,11 @@ void reconnect()
     // Attempt to connect
     // creat unique client ID
     // in Mosquitto broker enable anom. access
-    if (client.connect("ESP8266Client"))
+    if (client.connect("ESP8266Client2"))
     {
       Serial.println("connected");
       // Subscribe
-      client.subscribe("esp32/output");
+      client.subscribe("nmbs/code");
     }
     else
     {
@@ -142,17 +144,17 @@ void reconnect()
 }
 void loop()
 {
-  if (!client.connected())
-  {
-    reconnect();
-  }
-  client.loop();
+  // if (!client.connected())
+  // {
+  //   reconnect();
+  // }
+  // client.loop();
 
-  long now = millis();
-  if (now - lastMsg > 5000)
-  {
-    lastMsg = now;
-  }
+  // long now = millis();
+  // if (now - lastMsg > 5000)
+  // {
+  //   lastMsg = now;
+  // }
 
   if (readerDisabled) {
     if (millis() - timeLastCardRead > DELAY_BETWEEN_CARDS) {
@@ -197,21 +199,27 @@ void handleCardDetected() {
       //Serial.print("  UID Value: ");
       Serial.print("Card ID HEX Value: ");
       nfc.PrintHex(uid, uidLength);
+
+      //check id of card
+
+
+
+
       
-      if (uidLength == 4)
-      {
-        // We probably have a Mifare Classic card ... 
-        uint32_t cardid = uid[0];
-        cardid <<= 8;
-        cardid |= uid[1];
-        cardid <<= 8;
-        cardid |= uid[2];  
-        cardid <<= 8;
-        cardid |= uid[3]; 
-        //Serial.print("Seems to be a Mifare Classic card #");
-        Serial.print("Card ID NUMERIC Value: ");
-        Serial.println(cardid);
-      }
+      // if (uidLength == 4)
+      // {
+      //   // We probably have a Mifare Classic card ... 
+      //   uint32_t cardid = uid[0];
+      //   cardid <<= 8;
+      //   cardid |= uid[1];
+      //   cardid <<= 8;
+      //   cardid |= uid[2];  
+      //   cardid <<= 8;
+      //   cardid |= uid[3]; 
+      //   //Serial.print("Seems to be a Mifare Classic card #");
+      //   Serial.print("Card ID NUMERIC Value: ");
+      //   Serial.println(cardid);
+      // }
       Serial.println("");
 
       timeLastCardRead = millis();
